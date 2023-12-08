@@ -1,0 +1,61 @@
+package com.connection.chatgpt.services;
+
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+
+
+@Service
+@AllArgsConstructor
+public class ChatGPTService {
+
+
+    public String gptConnection(String prompt) {
+
+        String openaiApiKey = "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";
+        String openaiEndpoint = "https://api.openai.com/v1/chat/completions";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + openaiApiKey);
+
+        Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("messages", Arrays.asList(
+                Map.of("role", "system", "content", "You are a chatbot."),
+                Map.of("role", "user", "content", prompt)
+        ));
+        requestBodyMap.put("model", "gpt-3.5-turbo");
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBodyMap, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(openaiEndpoint, HttpMethod.POST, requestEntity, String.class);
+
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            String responseBody = responseEntity.getBody();
+
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(responseBody);
+                String content = jsonNode.path("choices").get(0).path("message").path("content").asText();
+
+                return content;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Erro na chamada da API OpenAI. Código de status: " + responseEntity.getStatusCodeValue());
+            return "Error";
+        }
+        return "";
+    }
+}
