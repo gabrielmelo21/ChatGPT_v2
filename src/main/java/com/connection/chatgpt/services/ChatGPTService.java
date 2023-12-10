@@ -8,16 +8,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.*;
 
 
 @Service
 @AllArgsConstructor
 public class ChatGPTService {
-
 
     public String gptConnection(String prompt) {
 
@@ -28,11 +24,12 @@ public class ChatGPTService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + openaiApiKey);
 
+        List<Map<String, String>> messages = new ArrayList<>();
+        messages.add(createMessage("system", "You are a chatbot."));
+        messages.add(createMessage("user", prompt));
+
         Map<String, Object> requestBodyMap = new HashMap<>();
-        requestBodyMap.put("messages", Arrays.asList(
-                Map.of("role", "system", "content", "You are a chatbot."),
-                Map.of("role", "user", "content", prompt)
-        ));
+        requestBodyMap.put("messages", messages);
         requestBodyMap.put("model", "gpt-3.5-turbo");
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBodyMap, headers);
@@ -57,5 +54,12 @@ public class ChatGPTService {
             return "Error";
         }
         return "";
+    }
+
+    private Map<String, String> createMessage(String role, String content) {
+        Map<String, String> message = new HashMap<>();
+        message.put("role", role);
+        message.put("content", content);
+        return message;
     }
 }
