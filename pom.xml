@@ -14,8 +14,9 @@
 	<name>chatgpt</name>
 	<description>conectando ao chat gpt</description>
 	<properties>
-		<java.version>1.8</java.version> <!-- Alterei para a versão 1.8 -->
-	</properties>
+	<java.version>1.8</java.version> <!--  versão 1.8 -->
+</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
