@@ -1,1 +1,1 @@
-# chatGPT_v2
+# ChatGPT_v2
