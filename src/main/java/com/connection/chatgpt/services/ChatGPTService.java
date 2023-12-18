@@ -15,9 +15,12 @@ import java.util.*;
 @AllArgsConstructor
 public class ChatGPTService {
 
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+
     public String gptConnection(String prompt) {
 
-        String openaiApiKey = "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";
+        String openaiApiKey = "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";
         String openaiEndpoint = "https://api.openai.com/v1/chat/completions";
 
         HttpHeaders headers = new HttpHeaders();
@@ -34,26 +37,30 @@ public class ChatGPTService {
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBodyMap, headers);
 
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> responseEntity = restTemplate.exchange(openaiEndpoint, HttpMethod.POST, requestEntity, String.class);
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             String responseBody = responseEntity.getBody();
 
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonNode = objectMapper.readTree(responseBody);
-                String content = jsonNode.path("choices").get(0).path("message").path("content").asText();
-
-                return content;
+                JsonNode choices = jsonNode.path("choices");
+                if (choices.isArray() && choices.size() > 0) {
+                    String content = choices.get(0).path("message").path("content").asText();
+                    return content;
+                } else {
+                    // Trate o caso em que a resposta não tem o formato esperado
+                    return "Resposta inválida da API OpenAI.";
+                }
             } catch (Exception e) {
+                // Logar a exceção ou fazer algo apropriado
                 e.printStackTrace();
+                return "Erro ao processar a resposta da API OpenAI.";
             }
         } else {
             System.out.println("Erro na chamada da API OpenAI. Código de status: " + responseEntity.getStatusCodeValue());
             return "Error";
         }
-        return "";
     }
 
     private Map<String, String> createMessage(String role, String content) {
