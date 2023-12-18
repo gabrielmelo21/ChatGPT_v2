@@ -17,7 +17,7 @@ public class ChatGPTService {
 
     public String gptConnection(String prompt) {
 
-        String openaiApiKey = "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";
+        String openaiApiKey = "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";
         String openaiEndpoint = "https://api.openai.com/v1/chat/completions";
 
         HttpHeaders headers = new HttpHeaders();
